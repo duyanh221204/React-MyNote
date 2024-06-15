@@ -20,6 +20,26 @@ const RecycleBin = () =>
         getDeletedNote();
     }, [])
 
+    const restoreNote = async (id) =>
+    {
+        if (window.confirm("Are you sure you want to restore this note?"))
+        {
+            await axios.put('/DuyAnh/restore_data/' + id);
+            alert("Successfully restore!");
+            window.location.reload();
+        }
+    }
+
+    const permanentlyDeleteNotes = async (id) =>
+    {
+        if (window.confirm("Are you sure you want to delete this note permanently?"))
+        {
+            await axios.delete('/DuyAnh/delete_data_forever/' + id);
+            alert("Successfully delete!");
+            window.location.reload();
+        }
+    }
+
     return (
         <div className="home">
             <div className="Input">
@@ -40,10 +60,10 @@ const RecycleBin = () =>
                             <p className="note-content">
                                 { deletedNote.content }
                             </p>
-                            {/* <div className="delete-button">
-                                <button className="res-button" onClick={() => restoreNote(deletedNote)}>Restore</button>
+                            <div className="delete-button">
+                                <button className="res-button" onClick={() => restoreNote(deletedNote.id)}>Restore</button>
                                 <button className="del-button" onClick={() => permanentlyDeleteNotes(deletedNote.id)}>Delete</button>
-                            </div> */}
+                            </div>
                         </li>
                     ))
                 }

@@ -1,43 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import axios from "./axiosInstance";
+import { useParams } from "react-router-dom";
 
-const CreateNote = ({ addNote }) =>
+const CreateNote = () =>
 {
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
+    const [note, setNote] = useState({});
     const Navigate = useNavigate();
+    const { id } = useParams();
 
-    const handleCreateNote = () =>
+    useEffect(() =>
     {
-        if (window.confirm("Are you sure you want to create a new note?"))
+        const getData = async () =>
         {
-            const currentTime = new Date();
-            const created_time = format(currentTime, 'dd/MM/yyyy hh:mm aaa');
-            const newNote = 
+            const response = await axios.get('/DuyAnh/get_note/' + id);
+            setNote(response.data.data);
+        }
+
+        if (id !== '-1') getData();
+    }, [])
+
+    const handleCreateNote = async () =>
+    {
+        if (window.confirm("Are you sure you want to save this note?"))
+        {
+            if (id === '-1')
             {
-                id: Date.now(),
-                title,
-                created_time,
-                content
-            };
-            addNote(newNote);
-            setTitle('');
-            setContent('');
-            Navigate("/");
+                await axios.post('/DuyAnh/add_data', 
+                {
+                    "title": note.title,
+                    "content": note.content
+                });
+                alert("Successfully add!");
+                Navigate("/");
+            }
+            else
+            {
+                await axios.put('/DuyAnh/update_data/' + id, 
+                {
+                    "title": note.title,
+                    "content": note.content
+                });
+                alert("Successfully save!");
+                Navigate("/");
+            }
         }
     };
 
     return (
         <div className="create-note">
             <div className="Input">
-                <h1>Create a new note here!</h1>
-                <input className="create-input" type="text" placeholder="Title" value={ title } onChange={(e) => setTitle(e.target.value)}></input>
-                <button className="create-button" onClick={handleCreateNote}>Create!</button>
+                <h1>{id === '-1' ? 'Create' : 'Edit'} a note here!</h1>
+                <input className="create-input" type="text" placeholder="Title" value={note.title} onChange={(e) => setNote(prevNote => ({ ...prevNote, title: e.target.value }))}></input>
             </div>
 
             <div className="Input">
-                <textarea className="create-content" placeholder="Content" value={ content } onChange={(e) => setContent(e.target.value)}></textarea>
+                <textarea className="create-content" placeholder="Content" value={note.content} onChange={(e) => setNote(prevNote => ({ ...prevNote, content: e.target.value }))}></textarea>
+            </div>
+
+            <div className="create-button">
+                <button onClick={ handleCreateNote }>{id === '-1' ? 'Create' : 'Save'}</button>
             </div>
         </div>
     );

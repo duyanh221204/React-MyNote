@@ -1,25 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import axios from "./axiosInstance";
+import Note from "./Note";
 
 const Home = () =>
 {
-    const [notes, setNotes] = useState([]); // Sử dụng useState thay cho useRef
-    const deleteNote = useRef([]);
+    const [notes, setNotes] = useState([]);
     const [search, setSearch] = useState('');
-    const filteredNotes = notes.filter(
-        (note) => note.title.toLowerCase().includes(search.toLowerCase())
+    const filteredNotes = notes.filter(note => note.title.toLowerCase().includes(search.toLowerCase())
     );
 
     useEffect(() =>
     {
         const getData = async () =>
         {
-            const response = await axios.get(
-                "https://demo_project-1-d5070894.deta.app/DuyAnh"
-            );
+            const response = await axios.get("https://demo_project-1-d5070894.deta.app/DuyAnh");
             setNotes(response.data.data);
         };
-
         getData();
     }, []);
 
@@ -34,18 +30,7 @@ const Home = () =>
                     filteredNotes.map(note =>
                     (
                         <li className="note-item" key={ note.id }>
-                            <h3 className="note-title">
-                                Title: { note.title }
-                            </h3>
-                            <h4 className="note-time">
-                                Created on: { note.created_time }
-                            </h4>
-                            <p className="note-content">
-                                { note.content }
-                            </p>
-                            <div className="delete-button">
-                                <button className="del-button" onClick={ () => deleteNote.current(note.id) }>Delete</button>
-                            </div>
+                            <Note note={note}/>
                         </li>
                     ))
                 }
